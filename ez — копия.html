@@ -10,7 +10,6 @@
         /* === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ === */
         :root {
             --bg: #000;
-            --fog: rgba(8,8,8,0.98);
             --blood: #8b0000;
             --blood-glow: #ff1a1a;
             --blood-drip: #a40000;
@@ -29,73 +28,52 @@
         *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
         html, body { height: 100%; overflow-x: hidden; }
 
-        /* === ФОН: ТЁМНЫЙ ЛЕС + ШУМ === */
+        /* === ФОН: ЧИСТЫЙ ЛЕС + ШУМ (БЕЗ ЛАГОВ) === */
         body {
             background: 
-                radial-gradient(circle at 50% 15%, rgba(15,35,15,0.5), transparent 70%),
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="1.0" numOctaves="6"/><feColorMatrix type="saturate" values="0"/></filter></defs><rect width="800" height="600" fill="%23000000" filter="url(%23noise)"/></svg>'),
+                radial-gradient(circle at 50% 15%, rgba(15,35,15,0.4), transparent 70%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4"/><feColorMatrix type="saturate" values="0"/></filter></defs><rect width="800" height="600" fill="%23000000" filter="url(%23noise)"/></svg>'),
                 linear-gradient(180deg, #001100 0%, #000 100%);
             background-attachment: fixed;
             color: var(--text);
             font-family: var(--font-hand);
             line-height: 1.9;
             position: relative;
-            animation: forest-sway 45s infinite linear;
+            animation: forest-sway 50s infinite linear;
         }
         @keyframes forest-sway {
             0% { background-position: 0 0, 0 0, 0 0; }
-            100% { background-position: 90px 90px, 0 0, 0 0; }
+            100% { background-position: 100px 100px, 0 0, 0 0; }
         }
 
-        /* === ОВЕРЛЕЙ КРОВИ ПО ВСЕМУ ЭКРАНУ (прозрачный, без лагов) === */
+        /* === ОВЕРЛЕЙ КРОВИ ПО ВСЕМУ ЭКРАНУ (ОПТИМИЗИРОВАННЫЙ) === */
         .blood-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             pointer-events: none;
             z-index: 5;
             background: 
-                radial-gradient(circle at 20% 30%, var(--blood-drip) 1px, transparent 2px),
-                radial-gradient(circle at 75% 60%, var(--blood-drip) 1.5px, transparent 2px),
-                radial-gradient(circle at 45% 85%, var(--blood-drip) 1px, transparent 2px),
-                radial-gradient(circle at 90% 20%, var(--blood-drip) 1.2px, transparent 2px),
-                radial-gradient(ellipse at 30% 70%, rgba(139,0,0,0.08) 0%, transparent 30%),
-                radial-gradient(ellipse at 70% 40%, rgba(139,0,0,0.06) 0%, transparent 25%),
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="blood"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3"/><feColorMatrix values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.3 0"/></filter><rect width="200" height="200" fill="%238b0000" opacity="0.02" filter="url(%23blood)"/></svg>') repeat;
-            background-size: 300px 300px, 250px 250px, 280px 280px, 320px 320px, 600px 600px, 500px 500px, 200px 200px;
+                radial-gradient(circle at 15% 25%, var(--blood-drip) 1px, transparent 2px),
+                radial-gradient(circle at 80% 70%, var(--blood-drip) 1.3px, transparent 2px),
+                radial-gradient(circle at 50% 90%, var(--blood-drip) 1px, transparent 2px),
+                radial-gradient(ellipse at 35% 65%, rgba(139,0,0,0.07) 0%, transparent 30%),
+                radial-gradient(ellipse at 75% 35%, rgba(139,0,0,0.05) 0%, transparent 25%);
+            background-size: 300px 300px, 280px 280px, 320px 320px, 600px 600px, 500px 500px;
             opacity: 0.7;
-            animation: blood-move 60s infinite linear, blood-pulse 8s infinite ease-in-out;
+            animation: blood-move 70s infinite linear;
             mix-blend-mode: multiply;
             will-change: transform;
         }
         @keyframes blood-move {
-            0% { background-position: 0 0, 100px 200px, 200px 100px, 300px 300px, 0 0, 200px 100px, 0 0; }
-            100% { background-position: 100px 100px, 0 100px, 300px 200px, 0 0, 200px 200px, 0 300px, 200px 200px; }
-        }
-        @keyframes blood-pulse {
-            0%, 100% { opacity: 0.65; }
-            50% { opacity: 0.75; }
-        }
-
-        /* === ТУМАН === */
-        .fog {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle at 40% 60%, transparent 20%, var(--fog) 70%);
-            pointer-events: none;
-            z-index: 1;
-            opacity: 0.8;
-            animation: fog-drift 30s infinite ease-in-out;
-        }
-        @keyframes fog-drift {
-            0%, 100% { transform: translateX(-10%) translateY(-10%) scale(1.1); }
-            50% { transform: translateX(10%) translateY(10%) scale(1.05); }
+            0% { background-position: 0 0, 100px 200px, 200px 100px, 0 0, 200px 100px; }
+            100% { background-position: 100px 100px, 0 100px, 300px 200px, 200px 200px, 0 300px; }
         }
 
         /* === КОНТЕЙНЕР === */
         .container {
             max-width: 920px;
             margin: 2rem auto;
-            background: rgba(10,10,10,0.96);
+            background: rgba(10,10,10,0.97);
             border: 3px double var(--blood);
             border-radius: 16px;
             box-shadow: var(--shadow), inset 0 0 50px rgba(139,0,0,0.5);
@@ -169,7 +147,6 @@
         .diary {
             padding: 3rem 2.5rem;
             background: #111;
-            position: relative;
         }
         .diary-header {
             text-align: center;
@@ -262,18 +239,6 @@
             transform: translateY(-10px) scale(1.03);
             box-shadow: 0 0 30px var(--blood-glow);
         }
-        .person::after {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            width: 100px; height: 100px;
-            background: radial-gradient(circle, var(--blood-glow) 10%, transparent 70%);
-            transform: translate(-50%, -50%);
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-        .person:hover::after { opacity: 0.2; }
-
         .person img {
             width: 90px;
             height: 90px;
@@ -367,24 +332,20 @@
             header h1 { font-size: 2.8rem; }
             .diary, header { padding: 2rem 1.5rem; }
             .missing { grid-template-columns: 1fr; }
-            .blood-overlay { background-size: 200px 200px, 180px 180px, 200px 200px, 220px 220px, 400px 400px, 350px 350px, 150px 150px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ОВЕРЛЕЙ КРОВИ ПО ВСЕМУ САЙТУ -->
+    <!-- КРОВЬ ПО ВСЕМУ ЭКРАНУ — ОСТАЛАСЬ, НО ОПТИМИЗИРОВАНА -->
     <div class="blood-overlay"></div>
-
-    <div class="fog"></div>
 
     <div class="container">
 
         <header>
             <h1>Запись из дневника Aidzyki</h1>
             <div class="meta">
-                Автор: <a href="https://t.me/Forest_eye" target="_blank">@forest_eye</a> &nbsp;&bull;&nbsp; 
-                Найдено: у старого дома
+                Автор: <a href="https://t.me/Forest_eye" target="_blank">@forest_eye</a> · Найдено: у старого дома
             </div>
         </header>
 
@@ -393,7 +354,6 @@
             <div class="diary-header">Найдена неподалёку от старого дома в лесу. Страницы повреждены влагой. Дата: неразборчива.</div>
 
             <div class="missing">
-                <!-- ИСПРАВЛЕНО: alt="Nekepa" -->
                 <div class="person">
                     <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'><circle cx='45' cy='45' r='42' fill='%238b0000'/><path d='M28 38 Q33 33, 38 38 M52 38 Q57 33, 62 38 M32 55 Q45 60, 58 55' stroke='%23ff1a1a' stroke-width='3.5' fill='none'/></svg>" alt="Aidzyki">
                     <div class="name">AIDZYKI</div>
@@ -478,7 +438,7 @@
         </article>
 
         <footer>
-            © 2025 <a href="https://t.me/Forest_eye" target="_blank">Дом Васи</a>. Не читай в одиночестве.
+            © 2025 <a href="https://t.me/Forest_eye" target="_blank">Дом Васи</a>. Он уже рядом.
         </footer>
     </div>
 
