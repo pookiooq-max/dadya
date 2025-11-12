@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дневник Aidzyki | Дом Васи</title>
+    <meta name="description" content="Последние слова. Дневник найден у дома.">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Nosifer&family=UnifrakturMaguntia&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ === */
+        :root {
+            --bg: #000;
+            --fog: rgba(8,8,8,0.98);
+            --blood: #8b0000;
+            --blood-glow: #ff1a1a;
+            --blood-drip: #a40000;
+            --text: #e8e8e8;
+            --text-dim: #aaa;
+            --text-blood: #ffcccc;
+            --shadow: 0 0 30px rgba(139, 0, 0, 0.9);
+            --border-glow: 0 0 18px var(--blood-glow);
+            --font-title: 'Creepster', cursive;
+            --font-horror: 'Nosifer', cursive;
+            --font-gothic: 'UnifrakturMaguntia', cursive;
+            --font-hand: 'Roboto Mono', monospace;
+        }
+
+        /* === СБРОС === */
+        *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+        html, body { height: 100%; overflow-x: hidden; }
+
+        /* === ФОН: ТЁМНЫЙ ЛЕС + ШУМ === */
+        body {
+            background: 
+                radial-gradient(circle at 50% 15%, rgba(15,35,15,0.5), transparent 70%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="1.0" numOctaves="6"/><feColorMatrix type="saturate" values="0"/></filter></defs><rect width="800" height="600" fill="%23000000" filter="url(%23noise)"/></svg>'),
+                linear-gradient(180deg, #001100 0%, #000 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            font-family: var(--font-hand);
+            line-height: 1.9;
+            position: relative;
+            animation: forest-sway 45s infinite linear;
+        }
+        @keyframes forest-sway {
+            0% { background-position: 0 0, 0 0, 0 0; }
+            100% { background-position: 90px 90px, 0 0, 0 0; }
+        }
+
+        /* === ОВЕРЛЕЙ КРОВИ ПО ВСЕМУ ЭКРАНУ (прозрачный, без лагов) === */
+        .blood-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 5;
+            background: 
+                radial-gradient(circle at 20% 30%, var(--blood-drip) 1px, transparent 2px),
+                radial-gradient(circle at 75% 60%, var(--blood-drip) 1.5px, transparent 2px),
+                radial-gradient(circle at 45% 85%, var(--blood-drip) 1px, transparent 2px),
+                radial-gradient(circle at 90% 20%, var(--blood-drip) 1.2px, transparent 2px),
+                radial-gradient(ellipse at 30% 70%, rgba(139,0,0,0.08) 0%, transparent 30%),
+                radial-gradient(ellipse at 70% 40%, rgba(139,0,0,0.06) 0%, transparent 25%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="blood"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3"/><feColorMatrix values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.3 0"/></filter><rect width="200" height="200" fill="%238b0000" opacity="0.02" filter="url(%23blood)"/></svg>') repeat;
+            background-size: 300px 300px, 250px 250px, 280px 280px, 320px 320px, 600px 600px, 500px 500px, 200px 200px;
+            opacity: 0.7;
+            animation: blood-move 60s infinite linear, blood-pulse 8s infinite ease-in-out;
+            mix-blend-mode: multiply;
+            will-change: transform;
+        }
+        @keyframes blood-move {
+            0% { background-position: 0 0, 100px 200px, 200px 100px, 300px 300px, 0 0, 200px 100px, 0 0; }
+            100% { background-position: 100px 100px, 0 100px, 300px 200px, 0 0, 200px 200px, 0 300px, 200px 200px; }
+        }
+        @keyframes blood-pulse {
+            0%, 100% { opacity: 0.65; }
+            50% { opacity: 0.75; }
+        }
+
+        /* === ТУМАН === */
+        .fog {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 40% 60%, transparent 20%, var(--fog) 70%);
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.8;
+            animation: fog-drift 30s infinite ease-in-out;
+        }
+        @keyframes fog-drift {
+            0%, 100% { transform: translateX(-10%) translateY(-10%) scale(1.1); }
+            50% { transform: translateX(10%) translateY(10%) scale(1.05); }
+        }
+
+        /* === КОНТЕЙНЕР === */
+        .container {
+            max-width: 920px;
+            margin: 2rem auto;
+            background: rgba(10,10,10,0.96);
+            border: 3px double var(--blood);
+            border-radius: 16px;
+            box-shadow: var(--shadow), inset 0 0 50px rgba(139,0,0,0.5);
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* === ШАПКА === */
+        header {
+            background: linear-gradient(180deg, #0c0c0c, #000);
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            border-bottom: 5px double var(--blood-glow);
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(135deg, transparent, transparent 12px, rgba(255,26,26,0.04) 12px, rgba(255,26,26,0.04) 24px);
+            animation: scratches 6s linear infinite;
+        }
+        @keyframes scratches {
+            0% { background-position: 0 0; }
+            100% { background-position: 120px 120px; }
+        }
+
+        header h1 {
+            font-family: var(--font-horror);
+            font-size: 3.8rem;
+            color: var(--blood-glow);
+            text-shadow: 
+                0 0 20px var(--blood-glow),
+                0 0 40px var(--blood-glow),
+                5px 5px 0 #000,
+                -3px -3px 15px #8b0000;
+            margin-bottom: 1.2rem;
+            animation: glitch-horror 2.2s infinite;
+            letter-spacing: 3px;
+        }
+        @keyframes glitch-horror {
+            0%, 100% { text-shadow: 0 0 20px var(--blood-glow), 0 0 40px var(--blood-glow), 5px 5px 0 #000; }
+            12% { text-shadow: -4px 0 #00ff00, 4px 0 #ff00ff, 0 0 25px var(--blood-glow); }
+            24% { text-shadow: 4px 0 #00ff00, -4px 0 #ff00ff, 0 0 30px var(--blood-glow); }
+        }
+
+        .meta {
+            font-size: 1.05rem;
+            color: var(--text-dim);
+            font-family: var(--font-hand);
+        }
+        .meta a {
+            color: var(--blood-glow);
+            text-decoration: none;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--blood-glow);
+            border-bottom: 1px dashed var(--blood-glow);
+            padding-bottom: 2px;
+            transition: all 0.4s;
+        }
+        .meta a:hover {
+            color: #fff;
+            background: rgba(139,0,0,0.4);
+            border-radius: 4px;
+            text-shadow: 0 0 20px var(--blood-glow);
+        }
+
+        /* === ДНЕВНИК === */
+        .diary {
+            padding: 3rem 2.5rem;
+            background: #111;
+            position: relative;
+        }
+        .diary-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-family: var(--font-gothic);
+            color: var(--text-blood);
+            font-size: 1.3rem;
+            text-shadow: 0 0 8px var(--blood-glow);
+        }
+        .diary-header::before, .diary-header::after {
+            content: 'diamond';
+            color: var(--blood-glow);
+            margin: 0 10px;
+            animation: rotate 8s infinite linear;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .entry {
+            background: rgba(20,20,20,0.95);
+            padding: 1.8rem 2rem;
+            margin-bottom: 2rem;
+            border-left: 6px solid var(--blood-glow);
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 0 15px rgba(139,0,0,0.5);
+            position: relative;
+            font-size: 1.05rem;
+            line-height: 2;
+        }
+        .entry::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="url(%23water)"/><defs><pattern id="water" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 10 Q5 5, 10 10 T20 10" stroke="%23ffffff" stroke-width="0.5" fill="none" opacity="0.05"/></pattern></defs></svg>') repeat;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        .entry strong {
+            color: var(--blood-glow);
+            text-shadow: 0 0 8px var(--blood-glow);
+        }
+        .entry .whisper {
+            font-style: italic;
+            color: #ff9999;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            text-align: center;
+            text-shadow: 0 0 10px var(--blood-glow);
+            animation: whisper-glow 3s infinite;
+        }
+        @keyframes whisper-glow {
+            0%, 100% { text-shadow: 0 0 10px var(--blood-glow); }
+            50% { text-shadow: 0 0 20px var(--blood-glow), 0 0 30px #8b0000; }
+        }
+
+        .torn {
+            font-style: italic;
+            color: #ff6666;
+            text-align: center;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
+
+        /* === КАРТОЧКИ ПРОПАВШИХ === */
+        .missing {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 1.8rem;
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(139,0,0,0.12);
+            border: 2px dashed var(--blood);
+            border-radius: 12px;
+        }
+        .person {
+            background: rgba(25,25,25,0.95);
+            padding: 1.4rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid var(--blood);
+            box-shadow: var(--border-glow);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+        .person:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 0 30px var(--blood-glow);
+        }
+        .person::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100px; height: 100px;
+            background: radial-gradient(circle, var(--blood-glow) 10%, transparent 70%);
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .person:hover::after { opacity: 0.2; }
+
+        .person img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 4px solid var(--blood-glow);
+            box-shadow: 
+                0 0 20px var(--blood-glow),
+                0 0 40px rgba(255,26,26,0.3),
+                inset 0 0 15px rgba(0,0,0,0.7);
+            margin-bottom: 1rem;
+            object-fit: cover;
+            filter: brightness(0.9) contrast(1.3);
+            transition: all 0.4s ease;
+        }
+        .person:hover img {
+            transform: scale(1.1) rotate(5deg);
+            filter: brightness(1.2) contrast(1.5) drop-shadow(0 0 25px var(--blood-glow));
+            box-shadow: 0 0 30px var(--blood-glow), 0 0 60px rgba(255,26,26,0.5);
+        }
+
+        .person .name {
+            font-family: var(--font-title);
+            font-size: 1.4rem;
+            color: var(--blood-glow);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 12px var(--blood-glow);
+        }
+        .person .tg a {
+            color: var(--blood-glow);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        .person .status {
+            font-size: 0.85rem;
+            color: #ff6666;
+            font-style: italic;
+            margin-top: 0.6rem;
+            animation: blink 2.2s infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* === КОММЕНТАРИЙ === */
+        .comment {
+            background: linear-gradient(135deg, rgba(139,0,0,0.3), rgba(0,0,0,0.9));
+            padding: 2.2rem;
+            border: 3px dashed var(--blood-glow);
+            border-radius: 14px;
+            margin: 3rem 0;
+            font-family: var(--font-gothic);
+            font-size: 1.1rem;
+            color: var(--text-blood);
+            position: relative;
+            box-shadow: 0 0 25px rgba(255,26,26,0.4);
+        }
+        .comment::before {
+            content: 'ПОЛИЦЕЙСКИЙ ОТЧЁТ';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg);
+            padding: 0 18px;
+            color: var(--blood-glow);
+            font-family: var(--font-title);
+            font-size: 1.2rem;
+            text-shadow: 0 0 12px var(--blood-glow);
+        }
+
+        /* === ФУТЕР === */
+        footer {
+            text-align: center;
+            padding: 2.5rem;
+            font-size: 0.9rem;
+            color: #777;
+            font-family: var(--font-hand);
+            border-top: 3px solid var(--blood);
+            background: rgba(0,0,0,0.95);
+        }
+        footer a {
+            color: var(--blood-glow);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* === АДАПТИВНОСТЬ === */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.8rem; }
+            .diary, header { padding: 2rem 1.5rem; }
+            .missing { grid-template-columns: 1fr; }
+            .blood-overlay { background-size: 200px 200px, 180px 180px, 200px 200px, 220px 220px, 400px 400px, 350px 350px, 150px 150px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ОВЕРЛЕЙ КРОВИ ПО ВСЕМУ САЙТУ -->
+    <div class="blood-overlay"></div>
+
+    <div class="fog"></div>
+
+    <div class="container">
+
+        <header>
+            <h1>Запись из дневника Aidzyki</h1>
+            <div class="meta">
+                Автор: <a href="https://t.me/Forest_eye" target="_blank">@forest_eye</a> &nbsp;&bull;&nbsp; 
+                Найдено: у старого дома
+            </div>
+        </header>
+
+        <article class="diary">
+
+            <div class="diary-header">Найдена неподалёку от старого дома в лесу. Страницы повреждены влагой. Дата: неразборчива.</div>
+
+            <div class="missing">
+                <!-- ИСПРАВЛЕНО: alt="Nekepa" -->
+                <div class="person">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'><circle cx='45' cy='45' r='42' fill='%238b0000'/><path d='M28 38 Q33 33, 38 38 M52 38 Q57 33, 62 38 M32 55 Q45 60, 58 55' stroke='%23ff1a1a' stroke-width='3.5' fill='none'/></svg>" alt="Aidzyki">
+                    <div class="name">AIDZYKI</div>
+                    <div class="tg"><a href="https://t.me/Imacheburek" target="_blank">@Imacheburek</a></div>
+                    <div class="status">автор дневника</div>
+                </div>
+
+                <div class="person">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'><circle cx='45' cy='45' r='42' fill='%238b0000'/><path d='M30 35 L35 40 M55 35 L60 40 M28 53 Q45 58, 62 53' stroke='%23ff1a1a' stroke-width='3.5' fill='none'/></svg>" alt="Lexalr">
+                    <div class="name">LEXALR</div>
+                    <div class="tg"><a href="https://t.me/Not_lexalr" target="_blank">@Not_lexalr</a></div>
+                    <div class="status">стал Васей</div>
+                </div>
+
+                <div class="person">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'><circle cx='45' cy='45' r='42' fill='%238b0000'/><path d='M32 38 Q37 33, 42 38 Q47 33, 52 38 M30 55 Q45 50, 60 55' stroke='%23ff1a1a' stroke-width='3.5' fill='none'/></svg>" alt="Nekepa">
+                    <div class="name">NEKEPA</div>
+                    <div class="tg"><a href="https://t.me/Nekepa_13" target="_blank">@Nekepa_13</a></div>
+                    <div class="status">пропала первой</div>
+                </div>
+            </div>
+
+            <div class="entry">
+                <strong>1 день.</strong><br>
+                Мы шли по тропе, пока не стемнело. Kompas барахлит, телефон не ловит.<br>
+                <strong>Lexalr</strong> идёт впереди, молчит, будто что-то слышит. <strong>Nekepa</strong> нервничает.<br>
+                Один из безымянных — парень в серой куртке — всё время оборачивается.<br>
+                Говорит, что за нами кто-то идёт.
+            </div>
+
+            <div class="entry">
+                <strong>2 день.</strong><br>
+                Нашли дом. Старый, будто его никто не трогал лет 30.<br>
+                Дверь открыта, внутри свеча горит. Как будто нас ждали.<br>
+                Человек в чёрной одежде сидит у стены, голову опустил.<br>
+                <strong>Lexalr</strong> сказал, что мы можем остаться на ночь.<br>
+                Только… когда мы вошли, человек поднял голову, и это был он.<br>
+                Тот же голос, но не те глаза. Пустые.
+            </div>
+
+            <div class="entry">
+                <strong>Ночь.</strong><br>
+                Мне приснился лес. Ветки тянулись как руки, и кто-то шептал мне прямо в ухо:<br>
+                <div class="whisper">«Он выбрал дом. Теперь дом выберет вас.»</div>
+                Проснулся — свеча потухла.<br>
+                <strong>Nekepa</strong> пропала.<br>
+                <strong>Lexalr</strong> стоял у окна, и на его лице — красная линия от щеки до щеки.<br>
+                Не кровь. Будто улыбка прорезана изнутри.
+            </div>
+
+            <div class="entry">
+                <strong>3 день.</strong><br>
+                Мы хотели уйти, но тропа просто… исчезла.<br>
+                Лес стал другим. Те же деревья, но будто повторяются, как в кошмаре.<br>
+                Каждый поворот ведёт обратно к дому.<br>
+                Слышал ночью, как кто-то шептал моё имя.<br>
+                Не <strong>Nekepa</strong>. Не люди.<br>
+                И голос — как у <strong>Lexalr</strong>, только низкий, хриплый.<br>
+                Он сказал:<br>
+                <div class="whisper">“Aidzyki, останься. Vasya не хочет быть один.”</div>
+            </div>
+
+            <div class="entry">
+                <strong>Последняя запись</strong> (половина страницы вырвана).<br>
+                <div class="torn">*страница разорвана, чернила размыты*</div>
+                Если кто найдёт это — не ищите нас.<br>
+                <strong>Lexalr</strong> больше не с нами.<br>
+                Он стал… чем-то, что питается страхом.<br>
+                Когда смотришь в окно — он уже в доме.<br>
+                Если услышишь смех в лесу — беги.<br>
+                Но если он назовёт твоё имя —<br>
+                <strong style="color:var(--blood-glow);font-size:1.3em;">ты уже его.</strong>
+            </div>
+
+            <div class="comment">
+                <p><strong>Пользователь @forest_eye добавил:</strong></p>
+                <p>По данным полиции рюкзак действительно найден.<br>
+                Отпечатки на страницах принадлежат <strong>Aidzyki</strong>.<br>
+                Остальные члены группы — <em>по-прежнему пропавшие без вести</em>.</p>
+            </div>
+
+        </article>
+
+        <footer>
+            © 2025 <a href="https://t.me/Forest_eye" target="_blank">Дом Васи</a>. Не читай в одиночестве.
+        </footer>
+    </div>
+
+</body>
+</html>
